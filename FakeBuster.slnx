@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FakeBuster.DataAccess/FakeBuster.DataAccess.csproj" />
+  <Project Path="FakeBuster.UI/FakeBuster.UI.csproj" Id="4b964683-dbd1-40ed-8ca5-cff7468bcc29" />
+</Solution>
