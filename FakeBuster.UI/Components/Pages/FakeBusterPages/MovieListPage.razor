@@ -1,0 +1,105 @@
+﻿@inject NavigationManager NavManager
+@page "/Movies"
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<div class="d-flex flex-row justify-content-between">
+  <h3>Movies</h3>
+  <button class="btn btn-primary" @onclick="@(() => DetailsBtn("New"))">New</button>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">@nameof(Person.Name)</th>
+      <th scope="col">@nameof(Person.Age)</th>
+      <th scope="col">@nameof(Person.Email)</th>
+      <th scope="col">@nameof(Person.MobileNumber)</th>
+      <th scope="col">@nameof(Person.City)</th>
+      <th scope="col">@nameof(Person.Street)</th>
+      <th scope="col">@nameof(Person.ZipCode)</th>
+      <th scope="col">@nameof(Person.Country)</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var person in PeopleList)
+    {
+      <tr>
+        <th scope="row">@person.Id</th>
+        <td>@person.Name</td>
+        <td>@person.Age</td>
+        <td>@person.Email</td>
+        <td>@person.MobileNumber</td>
+        <td>@person.City</td>
+        <td>@person.Street</td>
+        <td>@person.ZipCode</td>
+        <td>@person.Country</td>
+        <td><button class="btn btn-link" @onclick="@(() => DetailsBtn(person.Id.ToString()))">Details</button></td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+@code {
+
+  public void DetailsBtn(string id)
+  {
+    NavManager.NavigateTo($"Movies/{id}");
+  }
+
+  public List<Person> PeopleList { get; set; } = [];
+
+  public class Person()
+  {
+    public int Id { get; set; }
+    public string? Name { get; set; }
+    public int Age { get; set; }
+    public string? Email { get; set; }
+    public string? MobileNumber { get; set; }
+    public string? City { get; set; }
+    public string? Street { get; set; }
+    public string? ZipCode { get; set; }
+    public string? Country { get; set; }
+  }
+
+  protected override void OnInitialized()
+  {
+    PeopleList.Add(new Person
+    {
+      Id = 1,
+      Name = "Alice Johnson",
+      Age = 28,
+      Email = "alice.johnson@example.com",
+      MobileNumber = "+45 12 34 56 78",
+      City = "Aarhus",
+      Street = "Vestergade 12",
+      ZipCode = "8000",
+      Country = "Denmark"
+    });
+    PeopleList.Add(new Person
+    {
+      Id = 2,
+      Name = "Brian Nielsen",
+      Age = 35,
+      Email = "brian.nielsen@example.com",
+      MobileNumber = "+45 23 45 67 89",
+      City = "Copenhagen",
+      Street = "Nørrebrogade 45",
+      ZipCode = "2200",
+      Country = "Denmark"
+    });
+    PeopleList.Add(new Person
+    {
+      Id = 3,
+      Name = "Clara Hansen",
+      Age = 42,
+      Email = "clara.hansen@example.com",
+      MobileNumber = "+45 34 56 78 90",
+      City = "Aalborg",
+      Street = "Boulevarden 8",
+      ZipCode = "9000",
+      Country = "Denmark"
+    });
+  }
+}
