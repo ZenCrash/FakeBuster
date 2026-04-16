@@ -1,8 +1,17 @@
-﻿@inject NavigationManager NavManager
+﻿@inject IPersonRepository PersonRepository
+@inject NavigationManager NavManager
 @page "/People/{id}"
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-<h3 class="pb-3">Person: @SelectedPerson.Name</h3>
+@if (SelectedPerson == null)
+  return;
+<div class="d-flex flex-row justify-content-between">
+  <h3 class="pb-3">@(SelectedPerson.Name != "" ? $"Person:{SelectedPerson.Name}" : "Person")</h3>
+  <div>
+    <button class="btn btn-outline-secondary" @onclick="@OnBackBtn">Go Back</button>
+  </div>
+</div>  
+
 <EditForm EditContext="@EditContext">
   <DataAnnotationsValidator />
   <div class="d-flex flex-column gap-3">
@@ -18,17 +27,14 @@
     <span>@(nameof(Person.MobileNumber))</span>
     <InputText type="text" class="form-control" @bind-Value="SelectedPerson.MobileNumber" placeholder="@(nameof(Person.MobileNumber))" />
 
-    <span>@(nameof(Person.City))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.City" placeholder="@(nameof(Person.City))" />
+    <span>@(nameof(Person.Address.City))</span>
+    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Address.City" placeholder="@(nameof(Person.Address.City))" />
 
-    <span>@(nameof(Person.Street))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Street" placeholder="@(nameof(Person.Street))" />
+    <span>@(nameof(Person.Address.ZipCode))</span>
+    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Address.ZipCode" placeholder="@(nameof(Person.Address.ZipCode))" />
 
-    <span>@(nameof(Person.ZipCode))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.ZipCode" placeholder="@(nameof(Person.ZipCode))" />
-
-    <span>@(nameof(Person.Country))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Country" placeholder="@(nameof(Person.Country))" />
+    <span>@(nameof(Person.Address.Country))</span>
+    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Address.Country" placeholder="@(nameof(Person.Address.Country))" />
 
     <div>
       <button class="btn btn-primary" @onclick="@OnSubmitBtn">Submit</button>
@@ -38,52 +44,59 @@
 
 @code {
   [Parameter] public string Id { get; set; } = null!;
-  public Person SelectedPerson { get; set; }
+  public Person SelectedPerson { get; set; } = null!;
   public EditContext EditContext { get; set; }
+  public bool IsNew { get; set; }
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
-    SelectedPerson = GetPerson(Id);
+    SelectedPerson = await GetPerson(Id);
     EditContext = new EditContext(SelectedPerson);
   }
 
-  public Person GetPerson(string id)
+  public async Task<Person> GetPerson(string id)
   {
     if (Id.ToLower() == "new")
-      return new Person();
-
-    return new Person
     {
-      Id = 1,
-      Name = "Alice Johnson",
-      Age = 28,
-      Email = "alice.johnson@example.com",
-      MobileNumber = "+45 12 34 56 78",
-      City = "Aarhus",
-      Street = "Vestergade 12",
-      ZipCode = "8000",
-      Country = "Denmark"
-    };
+      IsNew = true;
+      return new Person();
+    }
+    else
+    {
+      int idAsInt;
+      if (int.TryParse(id, out idAsInt))
+      {
+          var x = await PersonRepository.Get(idAsInt) ?? new Person();
+          return x;
+      }
+      else
+      {
+        return new Person();
+        //alert something went wrong
+      }
+    }
   }
 
-  public void OnSubmitBtn()
+  public async Task OnSubmitBtn()
   {
     if (EditContext.Validate() && EditContext.IsModified())
     {
+      if (IsNew)
+      {
+        await PersonRepository.Create(SelectedPerson);
+        IsNew = false;
+      }
+      else
+      {
+        await PersonRepository.Update(SelectedPerson);
+      }
+
       NavManager.NavigateTo("/People");
     }
   }
 
-  public class Person()
+  public void OnBackBtn()
   {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNumber { get; set; }
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? ZipCode { get; set; }
-    public string? Country { get; set; }
+    NavManager.NavigateTo("/People");
   }
 }

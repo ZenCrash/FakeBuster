@@ -1,4 +1,6 @@
-﻿@inject NavigationManager NavManager
+﻿@inject IPersonRepository PersonRepository
+
+@inject NavigationManager NavManager
 @page "/People"
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
@@ -15,10 +17,9 @@
     <th scope="col">@nameof(Person.Age)</th>
     <th scope="col">@nameof(Person.Email)</th>
     <th scope="col">@nameof(Person.MobileNumber)</th>
-    <th scope="col">@nameof(Person.City)</th>
-    <th scope="col">@nameof(Person.Street)</th>
-    <th scope="col">@nameof(Person.ZipCode)</th>
-    <th scope="col">@nameof(Person.Country)</th>
+    <th scope="col">@nameof(Person.Address.City)</th>
+    <th scope="col">@nameof(Person.Address.ZipCode)</th>
+    <th scope="col">@nameof(Person.Address.Country)</th>
     <th scope="col"></th>
   </tr>
   </thead>
@@ -31,10 +32,9 @@
           <td>@person.Age</td>
           <td>@person.Email</td>
           <td>@person.MobileNumber</td>
-          <td>@person.City</td>
-          <td>@person.Street</td>
-          <td>@person.ZipCode</td>
-          <td>@person.Country</td>
+          <td>@person.Address.City</td>
+          <td>@person.Address.ZipCode</td>
+          <td>@person.Address.Country</td>
           <td><button class="btn btn-link" @onclick="@(() => DetailsBtn(person.Id.ToString()))">Details</button></td>
         </tr>
       }
@@ -42,64 +42,20 @@
 </table>
 
 @code {
+  public List<Person> PeopleList { get; set; } = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    PeopleList = await GetAllPeople();
+  }
+
+  public async Task<List<Person>> GetAllPeople()
+  {
+    return await PersonRepository.GetAll();
+  }
 
   public void DetailsBtn(string id)
   {
     NavManager.NavigateTo($"People/{id}");
-  }
-
-  public List<Person> PeopleList { get; set; } = [];
-
-  public class Person()
-  {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNumber { get; set; }
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? ZipCode { get; set; }
-    public string? Country { get; set; }
-  }
-
-  protected override void OnInitialized()
-  {
-    PeopleList.Add(new Person
-    {
-      Id = 1,
-      Name = "Alice Johnson",
-      Age = 28,
-      Email = "alice.johnson@example.com",
-      MobileNumber = "+45 12 34 56 78",
-      City = "Aarhus",
-      Street = "Vestergade 12",
-      ZipCode = "8000",
-      Country = "Denmark"
-    });
-    PeopleList.Add(new Person
-    {
-      Id = 2,
-      Name = "Brian Nielsen",
-      Age = 35,
-      Email = "brian.nielsen@example.com",
-      MobileNumber = "+45 23 45 67 89",
-      City = "Copenhagen",
-      Street = "Nørrebrogade 45",
-      ZipCode = "2200",
-      Country = "Denmark"
-    });
-    PeopleList.Add(new Person
-    {
-      Id = 3,
-      Name = "Clara Hansen",
-      Age = 42,
-      Email = "clara.hansen@example.com",
-      MobileNumber = "+45 34 56 78 90",
-      City = "Aalborg",
-      Street = "Boulevarden 8",
-      ZipCode = "9000",
-      Country = "Denmark"
-    });
   }
 }

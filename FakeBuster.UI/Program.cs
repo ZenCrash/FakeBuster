@@ -1,4 +1,6 @@
+using FakeBuster.DataAccess.Repository;
 using FakeBuster.UI.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace FakeBuster.UI
 {
@@ -11,6 +13,13 @@ namespace FakeBuster.UI
       // Add services to the container.
       builder.Services.AddRazorComponents()
           .AddInteractiveServerComponents();
+
+      //DbContext
+      builder.Services.AddDbContext<FakeBuster.DataAccess.Data.FakeBusterContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+      //Repositories
+      builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 
       var app = builder.Build();
 

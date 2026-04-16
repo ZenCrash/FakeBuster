@@ -1,0 +1,32 @@
+insert into Addresses (city, zip_code, country) values ('Ipoh', '30532', 'Malaysia');
+insert into Addresses (city, zip_code, country) values ('Rancageneng Satu', '30532', 'Indonesia');
+insert into Addresses (city, zip_code, country) values ('Holma', '30532', 'Nigeria');
+insert into Addresses (city, zip_code, country) values ('Bagahanlad', '5418', 'Philippines');
+insert into Addresses (city, zip_code, country) values ('Nizhnyaya Tavda', '626020', 'Russia');
+insert into Addresses (city, zip_code, country) values ('Pampas', '30532', 'Peru');
+insert into Addresses (city, zip_code, country) values ('Hvozdná', '763 11', 'Czech Republic');
+insert into Addresses (city, zip_code, country) values ('Sirib', '6113', 'Philippines');
+insert into Addresses (city, zip_code, country) values ('Notodden', '3675', 'Norway');
+insert into Addresses (city, zip_code, country) values ('Dan Khun Thot', '30210', 'Thailand');
+
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Wash Bicksteth', 1, '4499245831', 1, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Kara Durrad', 2, '2971932787', 2, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Egbert Kobes', 3, '4344526227', 3, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Curtis Alvin', 4, '5649614398', 4, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Preston Clipson', 5, '4667254878', 5, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Ester Click', 6, '1301623583', 6, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Maren Edards', 7, '1962447440', 7, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Letizia Concannon', 8, '5847771660', 8, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Cornall Unsworth', 9, '1634037854', 9, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Ferdinand Donizeau', 10, '6783336394', 10, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Julia Gamell', 11, '9835570876', 1, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Allan Vittore', 12, '8754063252', 2, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Humfried Raffon', 13, '8504635600', 3, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Maisey McCallam', 14, '6388124454', 4, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Rafael Stainland', 15, '5782358567', 5, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Kissiah Gawkes', 16, '6946052476', 6, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Isabella Alfonsini', 17, '7686065540', 7, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Cory Cragg', 18, '2141140044', 8, 1);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Dalston Caddy', 19, '8112087914', 9, 0);
+insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Shaine Pfaff', 20, '9148613287', 10, 1);
+
