@@ -30,3 +30,28 @@ insert into Persons (name, age, mobile_number, address_id, deactivated_user) val
 insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Dalston Caddy', 19, '8112087914', 9, 0);
 insert into Persons (name, age, mobile_number, address_id, deactivated_user) values ('Shaine Pfaff', 20, '9148613287', 10, 1);
 
+INSERT INTO [Genres] ([name]) VALUES ('Action');
+INSERT INTO [Genres] ([name]) VALUES ('Adventure');
+INSERT INTO [Genres] ([name]) VALUES ('Comedy');
+INSERT INTO [Genres] ([name]) VALUES ('Drama');
+INSERT INTO [Genres] ([name]) VALUES ('Fantasy');
+INSERT INTO [Genres] ([name]) VALUES ('Science Fiction');
+INSERT INTO [Genres] ([name]) VALUES ('Horror');
+INSERT INTO [Genres] ([name]) VALUES ('Thriller');
+INSERT INTO [Genres] ([name]) VALUES ('Romance');
+INSERT INTO [Genres] ([name]) VALUES ('Mystery');
+INSERT INTO [Genres] ([name]) VALUES ('Crime');
+INSERT INTO [Genres] ([name]) VALUES ('Animation');
+INSERT INTO [Genres] ([name]) VALUES ('Family');
+INSERT INTO [Genres] ([name]) VALUES ('Documentary');
+INSERT INTO [Genres] ([name]) VALUES ('War');
+INSERT INTO [Genres] ([name]) VALUES ('Western');
+INSERT INTO [Genres] ([name]) VALUES ('Musical');
+INSERT INTO [Genres] ([name]) VALUES ('History');
+INSERT INTO [Genres] ([name]) VALUES ('Biography');
+INSERT INTO [Genres] ([name]) VALUES ('Sport');
+
+INSERT INTO Content_Items (language) VALUES ('English');
+INSERT INTO Content_Items (language) VALUES ('Danish');
+INSERT INTO Content_Items (language) VALUES ('French');
+INSERT INTO Content_Items (language) VALUES ('German');

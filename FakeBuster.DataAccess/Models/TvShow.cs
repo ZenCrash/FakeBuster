@@ -19,9 +19,7 @@ public partial class TvShow
 
     public int? DurationMinutes { get; set; }
 
-    public int? ContentItemId { get; set; }
-
-    public virtual ContentItem? ContentItem { get; set; }
+    public virtual ICollection<ContentItem> ContentItems { get; set; } = new List<ContentItem>();
 
     public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
 }

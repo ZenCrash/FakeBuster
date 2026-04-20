@@ -9,11 +9,15 @@ public partial class ContentItem
 
     public string? Language { get; set; }
 
-    public int BookingId { get; set; }
+    public int? MovieId { get; set; }
 
-    public virtual Booking Booking { get; set; } = null!;
+    public int? TvShowId { get; set; }
 
-    public virtual ICollection<Movie> Movies { get; set; } = new List<Movie>();
+    public int? BookingId { get; set; }
 
-    public virtual ICollection<TvShow> TvShows { get; set; } = new List<TvShow>();
+    public virtual Booking? Booking { get; set; }
+
+    public virtual Movie? Movie { get; set; }
+
+    public virtual TvShow? TvShow { get; set; }
 }

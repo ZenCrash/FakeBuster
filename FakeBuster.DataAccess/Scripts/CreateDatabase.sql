@@ -37,24 +37,12 @@ CREATE TABLE [Bookings](
 );
 GO
 
-CREATE TABLE [Content_Items](
-    [id] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-    [language] NVARCHAR(255) NULL,
-    [booking_id] INT NOT NULL,
-
-    CONSTRAINT [FK_content_items_bookings] FOREIGN KEY (booking_id) REFERENCES Bookings(id)
-);
-GO
-
 CREATE TABLE [Movies](
     [id] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
     [title] NVARCHAR(255) NOT NULL,
     [description] NVARCHAR(1023) NULL,
     [release_date] DATE NULL,
     [duration_minutes] INT NULL,
-    [content_item_id] INT NULL,
-
-    CONSTRAINT [FK_movies_content_items] FOREIGN KEY (content_item_id) REFERENCES Content_Items(id)
 );
 GO
 
@@ -66,9 +54,19 @@ CREATE TABLE [Tv_Shows](
     [description] NVARCHAR(1023) NULL,
     [release_date] DATE NULL,
     [duration_minutes] INT NULL,
-    [content_item_id] INT NULL,
+);
+GO
 
-    CONSTRAINT [FK_tv_shows_content_items] FOREIGN KEY (content_item_id) REFERENCES Content_Items(id)
+CREATE TABLE [Content_Items](
+    [id] INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    [language] NVARCHAR(255) NULL,
+    [movie_id] INT NULL,
+    [tv_show_id] INT NULL,
+    [booking_id] INT NULL,
+
+    CONSTRAINT [FK_content_items_tv_shows] FOREIGN KEY (movie_id) REFERENCES Movies(id) ON DELETE CASCADE,
+    CONSTRAINT [FK_content_items_movies] FOREIGN KEY (tv_show_id) REFERENCES Tv_Shows(id) ON DELETE CASCADE,
+    CONSTRAINT [FK_content_items_bookings] FOREIGN KEY (booking_id) REFERENCES Bookings(id)
 );
 GO
 
@@ -85,8 +83,8 @@ CREATE TABLE [Genres_Movies](
     [movie_id] INT NOT NULL,
 
     CONSTRAINT [PK_genres_movies] PRIMARY KEY (genre_id, movie_id),
-    CONSTRAINT [FK_genres_movies_genres] FOREIGN KEY (genre_id) REFERENCES Genres(id),
-    CONSTRAINT [FK_genres_movies_movies] FOREIGN KEY (movie_id) REFERENCES Movies(id)
+    CONSTRAINT [FK_genres_movies_genres] FOREIGN KEY (genre_id) REFERENCES Genres(id) ON DELETE CASCADE,
+    CONSTRAINT [FK_genres_movies_movies] FOREIGN KEY (movie_id) REFERENCES Movies(id) ON DELETE CASCADE
 );
 GO
 
@@ -95,7 +93,7 @@ CREATE TABLE [Genres_Tv_Shows](
     [tv_show_id] INT NOT NULL,
 
     CONSTRAINT [PK_genres_tv_shows] PRIMARY KEY (genre_id, tv_show_id),
-    CONSTRAINT [FK_genres_tv_shows_genres] FOREIGN KEY (genre_id) REFERENCES Genres(id),
-    CONSTRAINT [FK_genres_tv_shows_tv_shows] FOREIGN KEY (tv_show_id) REFERENCES Tv_Shows(id)
+    CONSTRAINT [FK_genres_tv_shows_genres] FOREIGN KEY (genre_id) REFERENCES Genres(id) ON DELETE CASCADE,
+    CONSTRAINT [FK_genres_tv_shows_tv_shows] FOREIGN KEY (tv_show_id) REFERENCES Tv_Shows(id) ON DELETE CASCADE
 );
 GO

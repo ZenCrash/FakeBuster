@@ -1,34 +1,17 @@
-﻿@inject NavigationManager NavManager
+﻿@inject IGenreRepository GenreRepository
+@inject NavigationManager NavManager
 @page "/Genres/{id}"
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-<h3 class="pb-3">Genre: @SelectedPerson.Name</h3>
+@if (SelectedGenre == null)
+  return;
+
+<h3 class="pb-3">Genre: @SelectedGenre.Name</h3>
 <EditForm EditContext="@EditContext">
   <DataAnnotationsValidator />
   <div class="d-flex flex-column gap-3">
-    <span>@(nameof(Person.Name))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Name" placeholder="@(nameof(Person.Name))" />
-
-    <span>@(nameof(Person.Age))</span>
-    <InputNumber type="number" class="form-control" @bind-Value="SelectedPerson.Age" placeholder="@(nameof(Person.Age))" />
-
-    <span>@(nameof(Person.Email))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Email" placeholder="@(nameof(Person.Email))" />
-
-    <span>@(nameof(Person.MobileNumber))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.MobileNumber" placeholder="@(nameof(Person.MobileNumber))" />
-
-    <span>@(nameof(Person.City))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.City" placeholder="@(nameof(Person.City))" />
-
-    <span>@(nameof(Person.Street))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Street" placeholder="@(nameof(Person.Street))" />
-
-    <span>@(nameof(Person.ZipCode))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.ZipCode" placeholder="@(nameof(Person.ZipCode))" />
-
-    <span>@(nameof(Person.Country))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Country" placeholder="@(nameof(Person.Country))" />
+    <span>@(nameof(Genre.Name))</span>
+    <InputText type="text" class="form-control" @bind-Value="SelectedGenre.Name" placeholder="@(nameof(Genre.Name))" />
 
     <div>
       <button class="btn btn-primary" @onclick="@OnSubmitBtn">Submit</button>
@@ -38,52 +21,50 @@
 
 @code {
   [Parameter] public string Id { get; set; } = null!;
-  public Person SelectedPerson { get; set; }
+  public Genre SelectedGenre { get; set; }
   public EditContext EditContext { get; set; }
+  public bool IsNew { get; set; }
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
-    SelectedPerson = GetPerson(Id);
-    EditContext = new EditContext(SelectedPerson);
+    SelectedGenre = await GetGenre(Id);
+    EditContext = new EditContext(SelectedGenre);
   }
 
-  public Person GetPerson(string id)
+  public async Task<Genre> GetGenre(string id)
   {
     if (Id.ToLower() == "new")
-      return new Person();
-
-    return new Person
     {
-      Id = 1,
-      Name = "Alice Johnson",
-      Age = 28,
-      Email = "alice.johnson@example.com",
-      MobileNumber = "+45 12 34 56 78",
-      City = "Aarhus",
-      Street = "Vestergade 12",
-      ZipCode = "8000",
-      Country = "Denmark"
-    };
-  }
+      IsNew = true;
+      return new Genre();
+    }
 
-  public void OnSubmitBtn()
-  {
-    if (EditContext.Validate() && EditContext.IsModified())
+    int idAsInt;
+    if (int.TryParse(id, out idAsInt))
     {
-      NavManager.NavigateTo("/Genres");
+      return await GenreRepository.Get(idAsInt) ?? new Genre();
+    }
+    else
+    {
+      return new Genre();
+      //alert something went wrong
     }
   }
 
-  public class Person()
+  public async Task OnSubmitBtn()
   {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNumber { get; set; }
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? ZipCode { get; set; }
-    public string? Country { get; set; }
+    if (EditContext.Validate() && EditContext.IsModified())
+    {
+      if (IsNew)
+      {
+        await GenreRepository.Create(SelectedGenre);
+        IsNew = false;
+      }
+      else
+      {
+        await GenreRepository.Update(SelectedGenre);
+      }
+      NavManager.NavigateTo("/Genres");
+    }
   }
 }

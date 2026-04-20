@@ -35,7 +35,10 @@
           <td>@person.Address.City</td>
           <td>@person.Address.ZipCode</td>
           <td>@person.Address.Country</td>
-          <td><button class="btn btn-link" @onclick="@(() => DetailsBtn(person.Id.ToString()))">Details</button></td>
+          <td>
+            <button class="btn btn-link" @onclick="@(() => DetailsBtn(person.Id.ToString()))">Edit</button>
+            <button class="btn btn-link" @onclick="@(() => DeleteBtn(person.Id))">Delete</button>
+          </td>
         </tr>
       }
   </tbody>
@@ -57,5 +60,11 @@
   public void DetailsBtn(string id)
   {
     NavManager.NavigateTo($"People/{id}");
+  }
+
+  public async Task DeleteBtn(int id)
+  {
+    await PersonRepository.Delete(id);
+    PeopleList = await GetAllPeople();
   }
 }

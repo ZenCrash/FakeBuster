@@ -10,8 +10,8 @@ namespace FakeBuster.DataAccess.Repository
     public Task<Person?> Get(int id);
     public Task<Person?> GetByEmail(string email);
     public Task<List<Person>> GetAll();
-    public Task Create(Person person);
-    public Task Update(Person person);
+    public Task Create(Person entity);
+    public Task Update(Person entity);
     public Task Delete(int id);
   }
 }

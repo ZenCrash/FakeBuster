@@ -19,7 +19,7 @@ public partial class Person
 
     public bool? DeactivatedUser { get; set; }
 
-    public virtual Address Address { get; set; } = new Address();
+    public virtual Address Address { get; set; } = null!;
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

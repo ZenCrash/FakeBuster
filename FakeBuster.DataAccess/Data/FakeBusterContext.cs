@@ -34,7 +34,7 @@ public partial class FakeBusterContext : DbContext
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Addresse__3213E83FD27DA294");
+            entity.HasKey(e => e.Id).HasName("PK__Addresse__3213E83FB4374F80");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.City)
@@ -50,7 +50,7 @@ public partial class FakeBusterContext : DbContext
 
         modelBuilder.Entity<Booking>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Bookings__3213E83FA55064F0");
+            entity.HasKey(e => e.Id).HasName("PK__Bookings__3213E83F2AB24094");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.PersonId).HasColumnName("person_id");
@@ -62,7 +62,7 @@ public partial class FakeBusterContext : DbContext
 
         modelBuilder.Entity<ContentItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Content___3213E83FE1CDC668");
+            entity.HasKey(e => e.Id).HasName("PK__Content___3213E83F02A7D8FF");
 
             entity.ToTable("Content_Items");
 
@@ -71,16 +71,27 @@ public partial class FakeBusterContext : DbContext
             entity.Property(e => e.Language)
                 .HasMaxLength(255)
                 .HasColumnName("language");
+            entity.Property(e => e.MovieId).HasColumnName("movie_id");
+            entity.Property(e => e.TvShowId).HasColumnName("tv_show_id");
 
             entity.HasOne(d => d.Booking).WithMany(p => p.ContentItems)
                 .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_content_items_bookings");
+
+            entity.HasOne(d => d.Movie).WithMany(p => p.ContentItems)
+                .HasForeignKey(d => d.MovieId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_content_items_tv_shows");
+
+            entity.HasOne(d => d.TvShow).WithMany(p => p.ContentItems)
+                .HasForeignKey(d => d.TvShowId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_content_items_movies");
         });
 
         modelBuilder.Entity<Genre>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Genres__3213E83FEDFC6100");
+            entity.HasKey(e => e.Id).HasName("PK__Genres__3213E83F3B6DBB63");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name)
@@ -92,11 +103,9 @@ public partial class FakeBusterContext : DbContext
                     "GenresMovie",
                     r => r.HasOne<Movie>().WithMany()
                         .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_genres_movies_movies"),
                     l => l.HasOne<Genre>().WithMany()
                         .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_genres_movies_genres"),
                     j =>
                     {
@@ -111,11 +120,9 @@ public partial class FakeBusterContext : DbContext
                     "GenresTvShow",
                     r => r.HasOne<TvShow>().WithMany()
                         .HasForeignKey("TvShowId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_genres_tv_shows_tv_shows"),
                     l => l.HasOne<Genre>().WithMany()
                         .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_genres_tv_shows_genres"),
                     j =>
                     {
@@ -128,10 +135,9 @@ public partial class FakeBusterContext : DbContext
 
         modelBuilder.Entity<Movie>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Movies__3213E83F84214980");
+            entity.HasKey(e => e.Id).HasName("PK__Movies__3213E83F5C25FC92");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ContentItemId).HasColumnName("content_item_id");
             entity.Property(e => e.Description)
                 .HasMaxLength(1023)
                 .HasColumnName("description");
@@ -140,15 +146,11 @@ public partial class FakeBusterContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
-
-            entity.HasOne(d => d.ContentItem).WithMany(p => p.Movies)
-                .HasForeignKey(d => d.ContentItemId)
-                .HasConstraintName("FK_movies_content_items");
         });
 
         modelBuilder.Entity<Person>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Persons__3213E83F473E0BAC");
+            entity.HasKey(e => e.Id).HasName("PK__Persons__3213E83F7F948C2D");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_id");
@@ -174,12 +176,11 @@ public partial class FakeBusterContext : DbContext
 
         modelBuilder.Entity<TvShow>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tv_Shows__3213E83F770BB258");
+            entity.HasKey(e => e.Id).HasName("PK__Tv_Shows__3213E83FEAA9E1AB");
 
             entity.ToTable("Tv_Shows");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ContentItemId).HasColumnName("content_item_id");
             entity.Property(e => e.Description)
                 .HasMaxLength(1023)
                 .HasColumnName("description");
@@ -190,10 +191,6 @@ public partial class FakeBusterContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
-
-            entity.HasOne(d => d.ContentItem).WithMany(p => p.TvShows)
-                .HasForeignKey(d => d.ContentItemId)
-                .HasConstraintName("FK_tv_shows_content_items");
         });
 
         OnModelCreatingPartial(modelBuilder);

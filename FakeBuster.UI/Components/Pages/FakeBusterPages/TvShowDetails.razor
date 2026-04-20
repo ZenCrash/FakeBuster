@@ -1,35 +1,52 @@
 ﻿@inject NavigationManager NavManager
+@inject ITvShowRepository TvShowRepository
+@inject IContentItemRepository ContentItemRepository
+@inject IGenreRepository GenreRepository
 @page "/TvShows/{id}"
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@page "/TvShows/{id}/{action}"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<h3 class="pb-3">Tv Show: @SelectedPerson.Name</h3>
+@if (SelectedTvShow == null)
+  return;
+
+<h3 class="pb-3">Tv Show: @SelectedTvShow.Title</h3>
 <EditForm EditContext="@EditContext">
   <DataAnnotationsValidator />
   <div class="d-flex flex-column gap-3">
-    <span>@(nameof(Person.Name))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Name" placeholder="@(nameof(Person.Name))" />
-
-    <span>@(nameof(Person.Age))</span>
-    <InputNumber type="number" class="form-control" @bind-Value="SelectedPerson.Age" placeholder="@(nameof(Person.Age))" />
-
-    <span>@(nameof(Person.Email))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Email" placeholder="@(nameof(Person.Email))" />
-
-    <span>@(nameof(Person.MobileNumber))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.MobileNumber" placeholder="@(nameof(Person.MobileNumber))" />
-
-    <span>@(nameof(Person.City))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.City" placeholder="@(nameof(Person.City))" />
-
-    <span>@(nameof(Person.Street))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Street" placeholder="@(nameof(Person.Street))" />
-
-    <span>@(nameof(Person.ZipCode))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.ZipCode" placeholder="@(nameof(Person.ZipCode))" />
-
-    <span>@(nameof(Person.Country))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Country" placeholder="@(nameof(Person.Country))" />
-
+    <span>@(nameof(TvShow.Title))</span>
+    <InputText disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.Title" placeholder="@(nameof(TvShow.Title))" />
+    <span>@(nameof(TvShow.EpisodeCount))</span>
+    <InputNumber disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.EpisodeCount" placeholder="@(nameof(TvShow.EpisodeCount))" />
+    <span>@(nameof(TvShow.SeasonNumber))</span>
+    <InputNumber disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.SeasonNumber" placeholder="@(nameof(TvShow.SeasonNumber))" />
+    <span>@(nameof(TvShow.Description))</span>
+    <InputText disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.Description" placeholder="@(nameof(TvShow.Description))" />
+    <span>@(nameof(TvShow.ReleaseDate))</span>
+    <InputDate disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.ReleaseDate" placeholder="@(nameof(TvShow.ReleaseDate))" />
+    <span>@(nameof(TvShow.DurationMinutes))</span>
+    <InputNumber disabled="@IsAddCopy" class="form-control" @bind-Value="SelectedTvShow.DurationMinutes" placeholder="@(nameof(TvShow.DurationMinutes))" />
+    
+    <span>@(nameof(ContentItem.Language))</span>
+    <InputSelect class="form-control" @bind-Value="SelectedLanguage" placeholder="@(nameof(ContentItem.Language))">
+      @foreach (var language in Enum.GetValues<Language>())
+      {
+        <option value="@language">@language</option>
+      }
+    </InputSelect>
+    
+    <span>@(nameof(TvShow.Genres))</span>
+    <div class="d-flex flex-column">
+      @foreach (var genre in GenreHelperList)
+      {
+        <div class="d-flex flex-row gap-2 align-items-center">
+          <InputCheckbox disabled="@IsAddCopy" 
+                         Value="genre.IsSelected"
+                         ValueChanged="@(v => genre.IsSelected = v)"
+                         ValueExpression="@(() => genre.IsSelected)" />
+          <span>@genre.Genre.Name</span>
+        </div>
+      }
+    </div>
     <div>
       <button class="btn btn-primary" @onclick="@OnSubmitBtn">Submit</button>
     </div>
@@ -38,52 +55,106 @@
 
 @code {
   [Parameter] public string Id { get; set; } = null!;
-  public Person SelectedPerson { get; set; }
-  public EditContext EditContext { get; set; }
+  [Parameter] public string? Action { get; set; }
+  public bool IsNew { get; set; }
+  public bool IsAddCopy { get; set; }
 
-  protected override void OnInitialized()
+  public TvShow? SelectedTvShow { get; set; }
+  public Language? SelectedLanguage { get; set; } = new();
+  public EditContext EditContext { get; set; }
+  public List<GenreHelper> GenreHelperList { get; set; } = [];
+  public class GenreHelper
   {
-    SelectedPerson = GetPerson(Id);
-    EditContext = new EditContext(SelectedPerson);
+    public Genre Genre { get; set; } = null!;
+    public bool IsSelected { get; set; }
   }
 
-  public Person GetPerson(string id)
+  public enum Language
+  {
+    English,
+    Spanish,
+    French,
+    German,
+    Italian,
+    Portuguese,
+    Russian,
+    Japanese,
+    Chinese,
+    Korean
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    SelectedTvShow = await GetTvShow(Id);
+    EditContext = new EditContext(SelectedTvShow);
+    GenreHelperList = await GetAllGenres();
+
+    if (!IsNew && Action != null)
+      IsAddCopy = true;
+  }
+
+  public async Task<TvShow> GetTvShow(string id)
   {
     if (Id.ToLower() == "new")
-      return new Person();
-
-    return new Person
     {
-      Id = 1,
-      Name = "Alice Johnson",
-      Age = 28,
-      Email = "alice.johnson@example.com",
-      MobileNumber = "+45 12 34 56 78",
-      City = "Aarhus",
-      Street = "Vestergade 12",
-      ZipCode = "8000",
-      Country = "Denmark"
-    };
+      IsNew = true;
+      return new TvShow();
+    }
+
+    int idAsInt;
+    if (int.TryParse(id, out idAsInt))
+    {
+      return await TvShowRepository.Get(idAsInt) ?? new TvShow();
+    }
+    else
+    {
+      return new TvShow();
+      //alert something went wrong
+    }
+
   }
 
-  public void OnSubmitBtn()
+  public async Task<List<GenreHelper>> GetAllGenres()
   {
-    if (EditContext.Validate() && EditContext.IsModified())
+    var genres = await GenreRepository.GetAll() ?? [];
+    var genreList = new List<GenreHelper>();
+    foreach (var genre in genres)
     {
+      genreList.Add(new GenreHelper
+      {
+        Genre = genre,
+        IsSelected = SelectedTvShow.Genres.Any(x => x.Id == genre.Id)
+      });
+    }
+
+    return genreList;
+  }
+
+  public async Task OnSubmitBtn()
+  {
+    if (IsAddCopy)
+    {
+      await ContentItemRepository.Create(new ContentItem { Language = SelectedLanguage.ToString(), TvShowId = SelectedTvShow.Id});
       NavManager.NavigateTo("/TvShows");
     }
-  }
 
-  public class Person()
-  {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNumber { get; set; }
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? ZipCode { get; set; }
-    public string? Country { get; set; }
+    if (EditContext.Validate() && EditContext.IsModified())
+    {
+      var selectedGenres = GenreHelperList.Where(x => x.IsSelected).Select(x => x.Genre).ToList();
+      SelectedTvShow.Genres = selectedGenres;
+
+      if (IsNew)
+      {
+        SelectedTvShow = await TvShowRepository.Create(SelectedTvShow);
+        await ContentItemRepository.Create(new ContentItem { Language = SelectedLanguage.ToString(), TvShowId = SelectedTvShow.Id});
+        IsNew = false;
+      }
+      else
+      {
+        await TvShowRepository.Update(SelectedTvShow);
+      }
+
+      NavManager.NavigateTo("/TvShows");
+    }
   }
 }

@@ -1,34 +1,54 @@
-﻿@inject NavigationManager NavManager
+﻿@inject IBookingRepository BookingRepository
+@inject IPersonRepository PersonRepository
+@inject IMovieRepository MovieRepository
+@inject ITvShowRepository TvShowRepository
+@inject NavigationManager NavManager
 @page "/Bookings/{id}"
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-<h3 class="pb-3">Booking: @SelectedPerson.Name</h3>
+@if (SelectedBooking == null)
+  return;
+
+<h3 class="pb-3">Booking</h3>
 <EditForm EditContext="@EditContext">
   <DataAnnotationsValidator />
   <div class="d-flex flex-column gap-3">
-    <span>@(nameof(Person.Name))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Name" placeholder="@(nameof(Person.Name))" />
+    <span>Movie / TvShow</span>
+    <InputSelect class="form-control" @bind-Value="@SelectedContentType" placeholder="@(nameof(Movie))">
+      @foreach (var type in Enum.GetValues<ContentType>())
+      {
+        <option value="@type">@type</option>
+      }
+    </InputSelect>
+    @if (SelectedContentType == ContentType.Movie)
+    {
+      <span>Movie</span>
+      <InputSelect class="form-control" @bind-Value="@SelectedContentId" placeholder="@(nameof(Movie))">
+        @foreach (var movie in MovieList)
+        {
+          <option value="@movie.Id">@movie.Title</option>
+        }
+      </InputSelect>
+    }
+    else
+    {
+      <span>Tv Show</span>
+      <InputSelect class="form-control" @bind-Value="@SelectedContentId" placeholder="@(nameof(TvShow))">
+        @foreach (var tvShow in TvShowList)
+        {
+          <option value="@tvShow.Id">@tvShow.Title</option>
+        }
+      </InputSelect>
 
-    <span>@(nameof(Person.Age))</span>
-    <InputNumber type="number" class="form-control" @bind-Value="SelectedPerson.Age" placeholder="@(nameof(Person.Age))" />
+    }
 
-    <span>@(nameof(Person.Email))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Email" placeholder="@(nameof(Person.Email))" />
-
-    <span>@(nameof(Person.MobileNumber))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.MobileNumber" placeholder="@(nameof(Person.MobileNumber))" />
-
-    <span>@(nameof(Person.City))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.City" placeholder="@(nameof(Person.City))" />
-
-    <span>@(nameof(Person.Street))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Street" placeholder="@(nameof(Person.Street))" />
-
-    <span>@(nameof(Person.ZipCode))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.ZipCode" placeholder="@(nameof(Person.ZipCode))" />
-
-    <span>@(nameof(Person.Country))</span>
-    <InputText type="text" class="form-control" @bind-Value="SelectedPerson.Country" placeholder="@(nameof(Person.Country))" />
+    <span>Person</span>
+    <InputSelect class="form-control" @bind-Value="@SelectedBooking.PersonId" placeholder="@(nameof(ContentItem.Language))">
+      @foreach (var person in PeopleList)
+      {
+        <option value="@person.Id">@person.Name</option>
+      }
+    </InputSelect>
 
     <div>
       <button class="btn btn-primary" @onclick="@OnSubmitBtn">Submit</button>
@@ -38,32 +58,66 @@
 
 @code {
   [Parameter] public string Id { get; set; } = null!;
-  public Person SelectedPerson { get; set; }
+  public Booking SelectedBooking { get; set; }
   public EditContext EditContext { get; set; }
-
-  protected override void OnInitialized()
+  public List<Person> PeopleList { get; set; } = [];
+  public List<Movie> MovieList { get; set; } = [];
+  public List<TvShow> TvShowList { get; set; } = [];
+  public bool IsMovie { get; set; } = true;
+  public int SelectedContentId { get; set; }
+  public ContentType SelectedContentType { get; set; }
+  public enum ContentType
   {
-    SelectedPerson = GetPerson(Id);
-    EditContext = new EditContext(SelectedPerson);
+    Movie,
+    TvShow,
   }
 
-  public Person GetPerson(string id)
+  public bool IsNew { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    SelectedBooking = await GetBooking(Id);
+    EditContext = new EditContext(SelectedBooking);
+    PeopleList = await GetAllPeople();
+    MovieList = await GetAllMovies();
+    TvShowList = await GetAllTvShows();
+  }
+
+  public async Task<Booking> GetBooking(string id)
   {
     if (Id.ToLower() == "new")
-      return new Person();
-
-    return new Person
     {
-      Id = 1,
-      Name = "Alice Johnson",
-      Age = 28,
-      Email = "alice.johnson@example.com",
-      MobileNumber = "+45 12 34 56 78",
-      City = "Aarhus",
-      Street = "Vestergade 12",
-      ZipCode = "8000",
-      Country = "Denmark"
-    };
+      IsNew = true;
+      return new Booking();
+    }
+
+    int idAsInt;
+    if (int.TryParse(id, out idAsInt))
+    {
+      var booking = await BookingRepository.Get(idAsInt) ?? new Booking();
+      IsMovie = booking.ContentItems.FirstOrDefault().Movie != null;
+      return booking;
+    }
+    else
+    {
+      return new Booking();
+      //alert something went wrong
+    }
+  }
+
+  public async Task<List<Person>> GetAllPeople()
+  {
+    return await PersonRepository.GetAll();
+  }
+
+  public async Task<List<Movie>> GetAllMovies()
+  {
+    return await MovieRepository.GetAll();
+  }
+
+  public async Task<List<TvShow>> GetAllTvShows()
+  {
+    return await TvShowRepository.GetAll();
   }
 
   public void OnSubmitBtn()
@@ -72,18 +126,9 @@
     {
       NavManager.NavigateTo("/Bookings");
     }
-  }
 
-  public class Person()
-  {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int Age { get; set; }
-    public string? Email { get; set; }
-    public string? MobileNumber { get; set; }
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? ZipCode { get; set; }
-    public string? Country { get; set; }
+    //TODO Language options
+    //Save
+
   }
 }

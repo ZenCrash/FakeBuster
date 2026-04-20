@@ -20,6 +20,11 @@ namespace FakeBuster.UI
 
       //Repositories
       builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+      builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+      builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+      builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+      builder.Services.AddScoped<ITvShowRepository, TvShowRepository>();
+      builder.Services.AddScoped<IContentItemRepository, ContentItemRepository>();
 
       var app = builder.Build();
 
