@@ -50,8 +50,3 @@ INSERT INTO [Genres] ([name]) VALUES ('Musical');
 INSERT INTO [Genres] ([name]) VALUES ('History');
 INSERT INTO [Genres] ([name]) VALUES ('Biography');
 INSERT INTO [Genres] ([name]) VALUES ('Sport');
-
-INSERT INTO Content_Items (language) VALUES ('English');
-INSERT INTO Content_Items (language) VALUES ('Danish');
-INSERT INTO Content_Items (language) VALUES ('French');
-INSERT INTO Content_Items (language) VALUES ('German');
